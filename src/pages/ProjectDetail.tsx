@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { projects, type Project } from '../data/data';
-import { Edit3, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const project = projects.find(p => p.id === id);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
 
   if (!project) {
     return (
@@ -22,9 +25,6 @@ const ProjectDetail = () => {
       </div>
     );
   }
-
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState('');
 
   const handleSave = (field: keyof Project) => {
     const updatedProjects = projects.map(p => 

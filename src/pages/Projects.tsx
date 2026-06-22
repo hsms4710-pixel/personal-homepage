@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { projects, type Project } from '../data/data';
-import { Plus, Edit3, Trash2, X } from 'lucide-react';
+import { Plus, Edit3, Trash2 } from 'lucide-react';
 
 const Projects = () => {
   const navigate = useNavigate();
@@ -51,9 +51,16 @@ const Projects = () => {
     const newId = `project-${Date.now()}`;
     const fullProject: Project = {
       id: newId,
-      ...newProject,
-      technologies: newProject.technologies.filter(Boolean) as string[],
+      title: newProject.title,
+      type: newProject.type || 'personal',
+      description: newProject.description,
+      longDescription: newProject.longDescription || '',
+      technologies: (newProject.technologies || []).filter(Boolean) as string[],
       image: ''
+      ,
+      github: newProject.github,
+      demo: newProject.demo,
+      date: newProject.date || new Date().getFullYear().toString()
     };
 
     const updatedProjects = [...projects, fullProject];
@@ -205,7 +212,7 @@ const Projects = () => {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project, index) => (
+          {filteredProjects.map((project) => (
             <div
               key={project.id}
               className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"

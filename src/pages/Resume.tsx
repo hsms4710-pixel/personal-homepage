@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { personalInfo, workExperiences, type WorkExperience } from '../data/data';
-import { Edit3, Trash2, Plus, X } from 'lucide-react';
+import { Edit3, Trash2, Plus } from 'lucide-react';
 
 const Resume = () => {
   const [editingSection, setEditingSection] = useState<'info' | 'experience' | null>(null);
@@ -11,7 +11,7 @@ const Resume = () => {
     description: '',
     achievements: []
   });
-  const [editingExpId, setEditingExpId] = useState<string | null>(null);
+  const [editingExpId, setEditingExpId] = useState<number | null>(null);
   const [editExpData, setEditExpData] = useState<Partial<WorkExperience>>({});
 
   const handleSaveInfo = () => {
@@ -30,7 +30,7 @@ const Resume = () => {
       position: newExperience.position,
       duration: newExperience.duration || '',
       description: newExperience.description || '',
-      achievements: newExperience.achievements.filter(Boolean) as string[]
+      achievements: (newExperience.achievements || []).filter(Boolean) as string[]
     };
 
     const updatedExperiences = [...workExperiences, fullExp];
@@ -59,13 +59,6 @@ const Resume = () => {
     setNewExperience(prev => ({
       ...prev,
       achievements: [...(prev.achievements || []), '']
-    }));
-  };
-
-  const handleEditAddAchievement = () => {
-    setEditExpData(prev => ({
-      ...prev,
-      achievements: [...((prev.achievements as string[]) || []), '']
     }));
   };
 

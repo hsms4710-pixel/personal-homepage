@@ -43,6 +43,7 @@ const initialKnowledgeTree: KnowledgeNode[] = [
             id: 'python-basics',
             title: '基础语法',
             description: 'Python 基础语法知识点',
+            children: [],
             isLeaf: true,
             content: '## Python 基础语法\n\n### 变量类型\nPython 是动态类型语言...\n\n### 数据结构\n- 列表\n- 字典\n- 元组\n- 集合'
           }
@@ -64,6 +65,7 @@ const initialKnowledgeTree: KnowledgeNode[] = [
             id: 'llm-basics',
             title: '基础概念',
             description: '什么是大语言模型',
+            children: [],
             isLeaf: true,
             content: '## 大语言模型基础\n\n### 定义\n大语言模型是基于深度学习的自然语言处理模型...'
           }
@@ -77,7 +79,7 @@ const Home = () => {
   const [showButtons, setShowButtons] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [resumeOpen, setResumeOpen] = useState(false);
-  const [knowledgeTree, setKnowledgeTree] = useState<KnowledgeNode[]>(initialKnowledgeTree);
+  const [knowledgeTree] = useState<KnowledgeNode[]>(initialKnowledgeTree);
   const [expandedKnowledgeIds, setExpandedKnowledgeIds] = useState<string[]>(['tech-root', 'ai-root']);
   const [selectedKnowledgeId, setSelectedKnowledgeId] = useState<string | null>(null);
   const [containerCenter, setContainerCenter] = useState({ x: 0, y: 0 });

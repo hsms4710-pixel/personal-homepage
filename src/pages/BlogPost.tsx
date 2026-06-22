@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { blogPosts, type BlogPost } from '../data/data';
 import { Edit3, ArrowLeft } from 'lucide-react';
@@ -6,6 +7,8 @@ const BlogPost = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const post = blogPosts.find(p => p.id === id);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
 
   if (!post) {
     return (
@@ -22,9 +25,6 @@ const BlogPost = () => {
       </div>
     );
   }
-
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState('');
 
   const handleSave = (field: keyof BlogPost) => {
     const updatedPosts = blogPosts.map(p => 

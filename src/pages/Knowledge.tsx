@@ -11,7 +11,7 @@ interface TreeNodeProps {
   onToggleExpand: (id: string) => void;
   onAddNode: (parentId: string) => void;
   onDeleteNode: (id: string) => void;
-  onEditNode: (id: string, field: 'title' | 'description' | 'content', value: string) => void;
+  onEditNode: (id: string, field: 'title' | 'description' | 'content' | 'isLeaf', value: string | boolean) => void;
 }
 
 const TreeNode: React.FC<TreeNodeProps> = ({
@@ -260,7 +260,7 @@ const Knowledge = () => {
   };
 
   // Edit node
-  const editNode = (id: string, field: 'title' | 'description' | 'content', value: string) => {
+  const editNode = (id: string, field: 'title' | 'description' | 'content' | 'isLeaf', value: string | boolean) => {
     const updateTree = (nodes: KnowledgeNode[]): KnowledgeNode[] => {
       return nodes.map(node => {
         if (node.id === id) {
@@ -335,7 +335,7 @@ const Knowledge = () => {
                       description: '',
                       children: [],
                       isLeaf: true
-                    }));
+                    } satisfies KnowledgeNode));
                     setTreeData([...newNodes, ...treeData]);
                   }}
                   className="text-xs text-blue-500 hover:text-blue-700"
@@ -489,14 +489,26 @@ const Knowledge = () => {
                             <FileText className="w-4 h-4 text-blue-500" />
                             <span className="font-medium text-gray-900">{doc.name}</span>
                           </div>
-                          {category && (
-                            <span 
-                              className="text-xs px-2 py-0.5 rounded-full"
-                              style={{ backgroundColor: `${category.color}20`, color: category.color }}
+                          <div className="flex items-center gap-2">
+                            {category && (
+                              <span
+                                className="text-xs px-2 py-0.5 rounded-full"
+                                style={{ backgroundColor: `${category.color}20`, color: category.color }}
+                              >
+                                {category.name}
+                              </span>
+                            )}
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                deleteDocument(doc.id);
+                              }}
+                              className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                              aria-label="删除文档"
                             >
-                              {category.name}
-                            </span>
-                          )}
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
                           {doc.uploadDate}

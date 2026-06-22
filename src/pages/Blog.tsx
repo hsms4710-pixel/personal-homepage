@@ -27,7 +27,7 @@ const Blog = () => {
       title: newPost.title,
       excerpt: newPost.excerpt || newPost.content.slice(0, 100) + '...',
       content: newPost.content,
-      tags: newPost.tags.filter(Boolean) as string[],
+      tags: (newPost.tags || []).filter(Boolean) as string[],
       date: newPost.date || new Date().toISOString().split('T')[0],
       readTime: newPost.readTime || '5 min'
     };
@@ -176,7 +176,7 @@ const Blog = () => {
 
         {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {blogPosts.map((post, index) => (
+          {blogPosts.map((post) => (
             <div
               key={post.id}
               className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"

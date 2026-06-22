@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Edit3, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 interface EditableCardProps {
   title: string;
