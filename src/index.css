@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-agent-dark text-white font-sans;
+  }
+  
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-agent-dark;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-agent-primary/50 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-agent-primary;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-agent-primary to-agent-secondary bg-clip-text text-transparent;
+  }
+  
+  .glow-effect {
+    @apply relative;
+  }
+  
+  .glow-effect::before {
+    content: '';
+    @apply absolute -inset-1 bg-gradient-to-r from-agent-primary to-agent-secondary rounded-lg blur opacity-25;
+    z-index: -1;
+  }
+}
