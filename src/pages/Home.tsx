@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import { ChevronRight, ChevronDown, X } from 'lucide-react';
 
 interface RadialItem {
@@ -26,6 +27,7 @@ interface KnowledgeNode {
   children: KnowledgeNode[];
   isLeaf?: boolean;
   content?: string;
+  filePath?: string;
 }
 
 const initialKnowledgeTree: KnowledgeNode[] = [
@@ -72,6 +74,27 @@ const initialKnowledgeTree: KnowledgeNode[] = [
         ]
       }
     ]
+  },
+  // 实习学习 - 使用 filePath 动态加载 Markdown
+  {
+    id: 'internlearn-root',
+    title: '实习学习',
+    description: 'KM文章与学习笔记',
+    children: [
+      { id: '632173-ai', title: 'AI赋能游戏特效设计', description: 'KM文章', filePath: '/knowledge/internlearn/632173_AI赋能游戏特效设计.md', children: [], isLeaf: true },
+      { id: '632183-ai-3d', title: 'AI端到端3D场景生产', description: 'KM文章', filePath: '/knowledge/internlearn/632183_AI端到端3D场景生产.md', children: [], isLeaf: true },
+      { id: '632308-loop', title: 'Loop Engineering 深度解读', description: 'KM文章', filePath: '/knowledge/internlearn/632308_Loop_Engineering_深度解读.md', children: [], isLeaf: true },
+      { id: '632448-c', title: '二十年的C项目AI外骨骼', description: 'KM文章', filePath: '/knowledge/internlearn/632448_二十年的C项目AI外骨骼.md', children: [], isLeaf: true },
+      { id: '632571-loop2', title: 'Loop工程', description: 'KM文章', filePath: '/knowledge/internlearn/632571_Loop工程.md', children: [], isLeaf: true },
+      { id: '655832-game', title: '洛克王国 Game AI Agent', description: 'KM文章', filePath: '/knowledge/internlearn/655832_洛克王国_Game_AI_Agent.md', children: [], isLeaf: true },
+      { id: '662849-trpc', title: 'tRPC-Agent-Go Prompt Cache工程实践', description: 'KM文章', filePath: '/knowledge/internlearn/662849_tRPC-Agent-Go_Prompt_Cache工程实践.md', children: [], isLeaf: true },
+      { id: '663014-agent', title: 'Agent上下文工程', description: 'KM文章', filePath: '/knowledge/internlearn/663014_Agent上下文工程.md', children: [], isLeaf: true },
+      { id: '663095-cube', title: 'Cube-Harness AutoEvol', description: 'KM文章', filePath: '/knowledge/internlearn/663095_Cube-Harness_AutoEvol.md', children: [], isLeaf: true },
+      { id: '663334-pixel', title: 'PixelCode Harness工程解法', description: 'KM文章', filePath: '/knowledge/internlearn/663334_PixelCode_Harness工程解法.md', children: [], isLeaf: true },
+      { id: '663508-claude', title: 'Claude-for-Legal Skill MCP调用失准', description: 'KM文章', filePath: '/knowledge/internlearn/663508_Claude-for-Legal_Skill_MCP调用失准.md', children: [], isLeaf: true },
+      { id: '663525-16', title: '十六个业务的知识库实践', description: 'KM文章', filePath: '/knowledge/internlearn/663525_十六个业务的知识库实践.md', children: [], isLeaf: true },
+    ],
+    isLeaf: false
   }
 ];
 
@@ -82,23 +105,8 @@ const Home = () => {
   const [knowledgeTree] = useState<KnowledgeNode[]>(initialKnowledgeTree);
   const [expandedKnowledgeIds, setExpandedKnowledgeIds] = useState<string[]>(['tech-root', 'ai-root']);
   const [selectedKnowledgeId, setSelectedKnowledgeId] = useState<string | null>(null);
-  const [containerCenter, setContainerCenter] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const updateCenter = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setContainerCenter({
-          x: rect.width / 2,
-          y: rect.height / 2
-        });
-      }
-    };
-    updateCenter();
-    window.addEventListener('resize', updateCenter);
-    return () => window.removeEventListener('resize', updateCenter);
-  }, []);
+  const [knowledgeContent, setKnowledgeContent] = useState<string>('');
+  const [knowledgeLoading, setKnowledgeLoading] = useState(false);
 
   const toggleKnowledgeExpand = (id: string) => {
     setExpandedKnowledgeIds(prev =>
@@ -106,8 +114,30 @@ const Home = () => {
     );
   };
 
-  const selectKnowledgeNode = (id: string) => {
+  const selectKnowledgeNode = async (id: string) => {
     setSelectedKnowledgeId(id);
+    setKnowledgeLoading(true);
+    
+    const node = findKnowledgeNode(id);
+    if (!node) {
+      setKnowledgeLoading(false);
+      return;
+    }
+    
+    if (node.filePath) {
+      try {
+        const response = await fetch(node.filePath);
+        const text = await response.text();
+        setKnowledgeContent(text);
+      } catch (error) {
+        console.error('Failed to load:', error);
+        setKnowledgeContent(node.content || '加载失败');
+      }
+    } else {
+      setKnowledgeContent(node.content || '暂无内容');
+    }
+    
+    setKnowledgeLoading(false);
   };
 
   const findKnowledgeNode = (id: string): KnowledgeNode | null => {
@@ -205,7 +235,6 @@ const Home = () => {
 
   return (
     <div 
-      ref={containerRef}
       className="relative w-screen h-screen overflow-hidden"
       style={{
         background: '#1a1a1a',
@@ -224,7 +253,7 @@ const Home = () => {
       />
 
       {/* 主内容区 - 完美居中 */}
-      <div ref={containerRef} className="relative w-full h-full">
+      <div className="relative w-full h-full">
         
         {/* ===== 连线层 - 使用固定长度 ===== */}
         <svg 
@@ -270,19 +299,24 @@ const Home = () => {
           </AnimatePresence>
         </svg>
 
-        {/* ===== 中心圆圈 ===== */}
+        {/* ===== 中心圆圈 - 使用双层 div 避免 Framer Motion 覆盖 transform ===== */}
+      <div
+        className="absolute z-20"
+        style={{
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: CENTER_SIZE,
+          height: CENTER_SIZE,
+        }}
+      >
         <motion.button
           onClick={() => setResumeOpen(!resumeOpen)}
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          className="absolute z-20 rounded-full flex items-center justify-center cursor-pointer"
+          className="w-full h-full rounded-full flex items-center justify-center cursor-pointer"
           style={{
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: CENTER_SIZE,
-            height: CENTER_SIZE,
             background: 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.12), rgba(255,255,255,0.04) 60%, rgba(255,255,255,0) 100%)',
             border: '1px solid rgba(255,255,255,0.18)',
             boxShadow: '0 4px 24px rgba(0,0,0,0.4), inset 0 0 40px rgba(255,255,255,0.05)',
@@ -323,8 +357,9 @@ const Home = () => {
             <span className="text-xl font-medium text-white/90" style={{ letterSpacing: '0.05em' }}>江</span>
           </div>
         </motion.button>
+      </div>
 
-        {/* ===== 径向按钮 - 使用角度计算实现完美圆形分布 ===== */}
+      {/* ===== 径向按钮 - 使用角度计算实现完美圆形分布 ===== */}
         <AnimatePresence>
           {showButtons && !resumeOpen && !activeSection && radialItems.map((item, index) => {
             // 使用角度和距离计算圆周上的位置
@@ -333,52 +368,55 @@ const Home = () => {
             const offsetX = Math.cos(radians) * distance;
             const offsetY = -Math.sin(radians) * distance; // 屏幕y轴向下，取反
             
-            // 用containerCenter计算绝对px位置
-            const btnLeft = containerCenter.x + offsetX;
-            const btnTop = containerCenter.y + offsetY;
-            
+            // 使用双层 div 结构：外层定位，内层动画
+            // 避免 Framer Motion 覆盖 CSS transform
             return (
-              <motion.div
+              <div
                 key={item.id}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ 
-                  delay: index * 0.06, 
-                  type: "spring", 
-                  stiffness: 350, 
-                  damping: 22 
-                }}
                 className="absolute z-10"
                 style={{
-                  left: `${btnLeft}px`,
-                  top: `${btnTop}px`,
-                  transform: 'translate(-50%, -50%)',
+                  left: `calc(50% + ${offsetX}px)`,
+                  top: `calc(50% + ${offsetY}px)`,
                   width: 88,
                   height: 88,
+                  marginTop: -44,
+                  marginLeft: -44,
                 }}
               >
-                <motion.button
-                  onClick={() => setActiveSection(item.id)}
-                  className="w-full h-full rounded-full flex flex-col items-center justify-center backdrop-blur-sm cursor-pointer"
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    boxShadow: '0 2px 16px rgba(0,0,0,0.3)',
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  transition={{ 
+                    delay: index * 0.06, 
+                    type: "spring", 
+                    stiffness: 350, 
+                    damping: 22 
                   }}
-                  whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.2)' }}
-                  whileTap={{ scale: 0.93 }}
+                  className="w-full h-full"
                 >
-                  <span className="text-sm font-medium text-white/90 tracking-wide">
-                    {item.name.split('/')[0]}
-                  </span>
-                  {item.name.includes('/') && (
-                    <span className="text-[11px] text-white/50 mt-0.5">
-                      {item.name.split('/')[1]}
+                  <motion.button
+                    onClick={() => setActiveSection(item.id)}
+                    className="w-full h-full rounded-full flex flex-col items-center justify-center backdrop-blur-sm cursor-pointer"
+                    style={{
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      boxShadow: '0 2px 16px rgba(0,0,0,0.3)',
+                    }}
+                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                    whileTap={{ scale: 0.93 }}
+                  >
+                    <span className="text-sm font-medium text-white/90 tracking-wide">
+                      {item.name.split('/')[0]}
                     </span>
-                  )}
-                </motion.button>
-              </motion.div>
+                    {item.name.includes('/') && (
+                      <span className="text-[11px] text-white/50 mt-0.5">
+                        {item.name.split('/')[1]}
+                      </span>
+                    )}
+                  </motion.button>
+                </motion.div>
+              </div>
             );
           })}
         </AnimatePresence>
@@ -608,15 +646,48 @@ const Home = () => {
                         </div>
                         
                         <div 
-                          className="p-6 rounded-xl"
+                          className="p-6 rounded-xl prose prose-invert max-w-none"
                           style={{ 
                             background: '#202020', 
                             border: '1px solid rgba(255,255,255,0.05)' 
                           }}
                         >
-                          <pre className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap font-sans">
-                            {findKnowledgeNode(selectedKnowledgeId)?.content || '暂无内容'}
-                          </pre>
+                          {knowledgeLoading ? (
+                            <p className="text-white/40">加载中...</p>
+                          ) : (
+                            <ReactMarkdown 
+                              components={{
+                                img: ({ src, alt }) => (
+                                  <img 
+                                    src={src} 
+                                    alt={alt} 
+                                    className="max-w-full h-auto rounded-lg my-4 border border-white/10" 
+                                    onError={() => console.error('图片加载失败:', src)}
+                                  />
+                                ),
+                                p: ({ children }) => (
+                                  <p className="mb-4 text-white/70 leading-relaxed">{children}</p>
+                                ),
+                                h1: ({ children }) => (
+                                  <h1 className="text-2xl font-bold text-white/90 mb-4 mt-6">{children}</h1>
+                                ),
+                                h2: ({ children }) => (
+                                  <h2 className="text-xl font-bold text-white/90 mb-3 mt-5">{children}</h2>
+                                ),
+                                h3: ({ children }) => (
+                                  <h3 className="text-lg font-semibold text-white/90 mb-2 mt-4">{children}</h3>
+                                ),
+                                code: ({ children }) => (
+                                  <code className="bg-white/10 rounded px-1.5 py-0.5 text-sm font-mono text-white/80">{children}</code>
+                                ),
+                                pre: ({ children }) => (
+                                  <pre className="bg-white/5 rounded-lg p-4 overflow-x-auto mb-4 border border-white/10">{children}</pre>
+                                ),
+                              }}
+                            >
+                              {knowledgeContent || '暂无内容'}
+                            </ReactMarkdown>
+                          )}
                         </div>
                       </motion.div>
                     ) : (

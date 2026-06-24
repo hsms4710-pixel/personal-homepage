@@ -40,3 +40,15 @@ graph-driven-development/
 knowledge/
 personal-projects/
 your-harness/
+
+# Temp files (project-specific)
+*.backup
+*.clean
+*.tsbuildinfo
+.PR_REVIEW_*.md
+ai-agent-opensource-pr-report.md
+
+# Knowledge base content (do not upload)
+public/knowledge/
+public/images/
+public/knowledge-tree.json
